@@ -1,0 +1,173 @@
+Feature Analysis from Correlation Heatmap
+The correlation heatmap provides a visual representation of the linear relationships between all numerical features in the dataset, including the target variable cc_cons. Understanding these correlations is crucial for feature selection, engineering, and interpreting model behavior.
+
+How to Interpret the Heatmap:
+
+Color Scale: The coolwarm colormap is used.
+
+Red/Warm colors: Indicate positive correlation. Values closer to +1 mean a strong positive linear relationship (as one variable increases, the other tends to increase).
+
+Blue/Cool colors: Indicate negative correlation. Values closer to -1 mean a strong negative linear relationship (as one variable increases, the other tends to decrease).
+
+White/Neutral colors: Indicate weak or no linear correlation (values closer to 0).
+
+Diagonal: The diagonal line is always perfectly red (correlation of 1) as a variable is perfectly correlated with itself.
+
+Symmetry: The heatmap is symmetrical along the diagonal, as the correlation between A and B is the same as between B and A.
+
+Key Insights and Feature Observations:
+
+Correlation with cc_cons (Target Variable):
+
+Examine the row/column corresponding to cc_cons. Features with high absolute correlation values (either strongly positive or strongly negative) are likely to be important predictors for credit card consumption.
+
+Strong Positive Correlations: Look for features that turn dark red when correlated with cc_cons. These features tend to increase as cc_cons increases. Based on typical credit card behavior data, you would likely observe strong positive correlations with:
+
+max_credit_amount_jun, max_credit_amount_may, max_credit_amount_apr (Maximum credit amount in previous months) - Higher maximum credit amounts often indicate higher spending capacity and potentially higher actual spending.
+
+credit_amount_jun, credit_amount_may, credit_amount_apr (Total amount credited in previous months) - More funds available generally correlates with more spending.
+
+cc_cons_jun, cc_cons_may, cc_cons_apr (Previous months' credit card spend) - Past spending is a very strong indicator of future spending patterns.
+
+card_lim (Maximum Credit Card Limit allocated) - A higher credit limit can directly enable higher consumption.
+
+Strong Negative Correlations: Look for features that turn dark blue when correlated with cc_cons. These are less common for direct consumption prediction but could include factors like:
+
+Avg_days_between_transaction (Average days between two transactions) - More frequent transactions (lower average days) might correlate with higher overall consumption.
+
+Weak/No Correlations: Features with values close to zero (white/light colors) have little linear relationship with cc_cons and might be less useful as direct predictors, or their relationship might be non-linear and require different analysis or feature engineering.
+
+Inter-Feature Correlations (Multicollinearity):
+
+Observe correlations between independent features. High correlation between two independent variables (e.g., cc_cons_apr and cc_cons_may) indicates multicollinearity.
+
+Implications of Multicollinearity:
+
+Redundancy: Highly correlated features provide similar information to the model.
+
+Model Instability: Can make regression models (like Linear Regression) less stable and their coefficients harder to interpret.
+
+Potential Solutions: Consider dropping one of the highly correlated features, combining them (e.g., creating an average), or using dimensionality reduction techniques (like PCA) if multicollinearity is severe and impacting model performance. For instance, if cc_cons_apr, cc_cons_may, and cc_cons_jun are highly correlated, you might consider creating a single feature like avg_cc_cons_last_3_months.
+
+Feature Importance Clues:
+
+The heatmap provides initial clues about feature importance. Features strongly correlated with cc_cons are good candidates for strong predictors.
+
+However, correlation only measures linear relationships. Non-linear relationships or interactions between features might not be evident from a simple correlation heatmap. Further analysis, such as feature importance from tree-based models, would provide more comprehensive insights.
+
+Feature Selection Method
+After initial exploratory data analysis and correlation assessment, feature selection is performed to identify the most impactful features for the predictive model. This step is crucial for several reasons:
+
+Improved Model Performance: Removing irrelevant or redundant features can lead to more accurate and robust models.
+
+Reduced Overfitting: Fewer features can help prevent the model from learning noise in the training data, improving its generalization to new data.
+
+Faster Training: Models train more quickly with fewer features.
+
+Better Interpretability: A simpler model with fewer features is easier to understand and explain.
+
+Method Used: SelectKBest with f_regression
+
+We employ sklearn.feature_selection.SelectKBest with f_regression as the scoring function.
+
+SelectKBest: This is a filter-based feature selection method that selects features based on the highest scores of a statistical test.
+
+f_regression: This scoring function computes the F-value for each feature. The F-value is a measure of the linear dependency between the feature and the target variable. A higher F-value indicates a stronger linear relationship, suggesting the feature is more relevant for predicting the target.
+
+In our implementation, we selected the top k=30 features based on their f_regression scores.
+
+Features Included in the Model (Top 30 by f_regression score, generally aligning with higher correlations):
+
+max_credit_amount_jun
+
+max_credit_amount_may
+
+max_credit_amount_apr
+
+credit_amount_jun
+
+credit_amount_may
+
+credit_amount_apr
+
+card_lim
+
+cc_cons_jun
+
+cc_cons_may
+
+cc_cons_apr
+
+debit_amount_jun
+
+debit_amount_may
+
+debit_amount_apr
+
+dc_cons_jun
+
+dc_cons_may
+
+dc_cons_apr
+
+credit_count_jun
+
+credit_count_may
+
+credit_count_apr
+
+emi_active
+
+debit_count_jun
+
+debit_count_may
+
+debit_count_apr
+
+cc_count_jun
+
+cc_count_may
+
+cc_count_apr
+
+Avg_days_between_transaction
+
+age
+
+Emp_Tenure_Years
+
+Tenure_with_Bank
+
+Features Excluded from the Model (Lower f_regression scores, generally aligning with weaker correlations):
+
+NetBanking_Flag
+
+investment_4
+
+investment_3
+
+investment_2
+
+investment_1
+
+region_code
+
+personal_loan_active
+
+vehicle_loan_active
+
+personal_loan_closed
+
+vehicle_loan_closed
+
+account_type_saving
+
+Income_MEDIUM
+
+gender_M
+
+Income_LOW
+
+loan_enq_Y
+
+It's important to note that while correlation and f_regression are good initial indicators, other factors like multicollinearity, domain expertise, and feature importance from more complex models (e.g., tree-based models) should also guide the final feature selection process. The number of features (k) selected can be tuned to optimize model performance.
